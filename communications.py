@@ -23,10 +23,6 @@ def start_serial(com,baud):
     serialPort = serial.Serial(arduinoComPort, baudRate, timeout=1)
     return serialPort
 
-style.use('fivethirtyeight')
-fig = plt.figure()
-ax1 = fig.add_subplot(1,1,1)
-
 def parse_and_plot():
     """
     Parse information coming in through serial port.
@@ -39,22 +35,26 @@ def parse_and_plot():
     times = []
     information = []
 
-    times = 0
+    timenum = 0
+
+    style.use('fivethirtyeight')
+    fig, ax1 = plt.subplots()
 
     try:
         while serialPort.isOpen() is True:
             lineOfData = serialPort.readline().decode()
             if lineOfData is not '\n': # skip the case when the only output is a new line on the serial port
-                times.append(time)
+                times.append(timenum)
                 information.append(lineOfData)
-                time = times + 1
-            ax1.clear()
-            ax1.plot(times, information)
+                timenum = timenum + 1
+                print(lineOfData)
+
+                ax1.plot(times, lineOfData)
+                plt.show()
     except KeyboardInterrupt:
         pass
 
-animation = animation.FuncAnimation(fig, parse_and_plot, interval = 1000)
-plt.show()
+
 
 def calibration(torque_values:list, voltages:list):
     """
@@ -72,7 +72,7 @@ def torque_value(function, function2, value):
     solved_torque2 = function2(value)
     return solved_torque1, solved_torque2
 
-
+parse_and_plot()
 # f_linear, f_cubic = calibration(np.linspace(0 , 1, 50), np.linspace(5,10,50))
 # torque1, torque2= torque_value(f_linear, f_cubic, 7.25)
 # print(torque1, torque2)
